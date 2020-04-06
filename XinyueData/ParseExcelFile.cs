@@ -10,18 +10,14 @@ using System.IO;
 using System.Threading.Tasks;
 namespace XinyueData
 {
+    public class CountNum{
+        public int repeatCount = 0;
+        public int newAddCount = 0;
+        public int unuseCount = 0;
+        public bool doOk = false;
+    }
     public class ParseExcelFile
     {
-
-
-        private string fileName = null; //文件名
-        private IWorkbook workbook = null;
-        private FileStream fs = null;
-
-        public ParseExcelFile(string fName)
-        {
-            fileName = fName;
-        }
         /// <summary>
         /// 将DataTable数据导入到excel中
         /// </summary>
@@ -29,8 +25,14 @@ namespace XinyueData
         /// <param name="isColumnWritten">DataTable的列名是否要导入</param>
         /// <param name="sheetName">要导入的excel的sheet的名称</param>
         /// <returns>导入数据行数(包含列名那一行)</returns>
-        public int DataTableToExcel(DataTable data, string sheetName, bool isColumnWritten)
+        public int DataTableToExcel(DataTable data, string fileName,string sheetName = null, bool isColumnWritten=false)
         {
+
+            IWorkbook workbook = null;
+            FileStream fs = null;
+
+     
+
             int i = 0;
             int j = 0;
             int count = 0;
@@ -77,6 +79,7 @@ namespace XinyueData
                     ++count;
                 }
                 workbook.Write(fs); //写入到excel
+                fs.Close();
                 return count;
             }
             catch (Exception ex)
@@ -92,12 +95,18 @@ namespace XinyueData
         /// <param name="sheetName">excel工作薄sheet的名称</param>
         /// <param name="isFirstRowColumn">第一行是否是DataTable的列名</param>
         /// <returns>返回的DataTable</returns>
-        public DataTable ExcelToDataTable(string sheetName, bool isFirstRowColumn)
+        public DataTable ExcelToDataTable(string fileName,string sheetName=null, bool isFirstRowColumn=true)
         {
+
+            IWorkbook workbook = null;
+            FileStream fs = null;
+
             ISheet sheet = null;
+
+
             DataTable data = new DataTable();
             int startRow = 0;
-            try
+          //  try
             {
                 fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
                 if (fileName.IndexOf(".xlsx") > 0) // 2007版本
@@ -164,14 +173,107 @@ namespace XinyueData
                         data.Rows.Add(dataRow);
                     }
                 }
-
+                
+                fs.Close();
                 return data;
             }
-            catch (Exception ex)
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine("Exception: " + ex.Message);
+            //    return null;
+            //}
+
+          
+        }
+
+        public CountNum ExcelToMysql(string fileName)
+        {
+            CountNum cn = new CountNum();
+
+            MySqlHelper.Instance.init();
+            Dictionary<string, string> dict = DataManager.Instance.FiledsDict;
+            FileStream fs = null;
+            try
             {
-                Console.WriteLine("Exception: " + ex.Message);
-                return null;
+                fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
             }
+            catch (Exception e)
+            {
+
+                Console.WriteLine(e.Message);
+                return cn;
+            }
+             
+            IWorkbook workbook = null;
+            ISheet sheet = null;
+            if (fileName.IndexOf(".xlsx") > 0) // 2007版本
+                workbook = new XSSFWorkbook(fs);
+            else if (fileName.IndexOf(".xls") > 0) // 2003版本
+                workbook = new HSSFWorkbook(fs);
+            if (workbook == null)
+            {
+                fs.Close();
+                return cn;
+            }
+
+            sheet = workbook.GetSheetAt(0);
+            if (sheet == null)
+            {
+                fs.Close();
+                return cn;
+            }
+
+            try
+            {
+                IRow firstRow = sheet.GetRow(0);
+                int cellCount = firstRow.LastCellNum; //一行最后一个cell的编号 即总的列数
+                int rowCount = sheet.LastRowNum;
+                for (int i = 1; i < rowCount; i++)
+                {
+                    IRow row = sheet.GetRow(i);
+                    if (row == null) continue;
+                    if (row.GetCell(1).ToString() == ""||row.GetCell(4).ToString()=="") continue;//无QQ号等级,无心悦等级 的不处理
+                                                         // "insert into vipxy2 (in_time,{0},{1}) values (now(),{0},{1}) ON DUPLICATE KEY UPDATE update_time = now()",
+
+                    string sql = "insert into vipxy2 (in_time,{0},{1}) values (now(),{0},{1}) ON DUPLICATE KEY UPDATE update_time = now()";
+                    string str1 = "";
+                    string str2 = "";
+                    for (int j = 0; j < cellCount; j++)
+                    {
+                        string tempStr = row.GetCell(j).ToString().Trim();
+                        if (tempStr=="")
+                        {
+                            continue;
+                        }
+                        str1 += dict[firstRow.GetCell(j).ToString().Trim()]+",";
+                        str2 += "'"+tempStr+"',";
+                    }
+                    str1 = str1.Substring(0, str1.Length - 1);//去掉最后的逗号
+                    str2 = str2.Substring(0, str2.Length - 1);
+
+                    sql = string.Format("insert into vipxy2 (in_time,{0}) values (now(),{1}) ON DUPLICATE KEY UPDATE update_time = now()", str1, str2);
+
+                   int ret = MySqlHelper.Instance.Do(sql);
+                    if (ret==1)
+                    {
+                        cn.newAddCount++;
+                    }
+                    else if (ret==2)
+                    {
+                        cn.repeatCount++;
+                    }
+                }
+
+                fs.Close();
+            }
+            catch (Exception e)
+            {
+
+                fs.Close();
+                Console.WriteLine(e.Message);
+                return cn;
+            }
+            return cn;
         }
     }
 }

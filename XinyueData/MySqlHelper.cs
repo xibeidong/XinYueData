@@ -138,14 +138,37 @@ namespace XinyueData
             *表一：id，qq，level，in_time,update_time,out_time
 
            */
-            string creatTable1 = string.Format("CREATE TABLE vipxy (in_time datetime,out_time datetime,update_time datetime,qq varchar(50),level int,PRIMARY KEY (qq))");
+            Dictionary<string, string> dict = DataManager.Instance.FiledsDict;
+            string creatTable1 = "CREATE TABLE vipxy2 (in_time datetime,out_time datetime,update_time datetime,"; //qq varchar(50),level int,PRIMARY KEY (qq))");
+
+            for (int i = 0; i < dict.Count; i++)
+            {
+                creatTable1 += "f" + i + " varchar(50),";
+            }
+
+            creatTable1 += " PRIMARY KEY(f0))";
+
+          //  string creatTable1 = string.Format("CREATE TABLE vipxy2 (in_time datetime,out_time datetime,update_time datetime,qq varchar(50),level int,PRIMARY KEY (qq))");
             using (MySqlCommand cmd2 = new MySqlCommand(creatTable1, conn))
             {
-                int ret = cmd2.ExecuteNonQuery();
-                if (ret >= 0)
+                try
                 {
-                    MessageBox.Show("初始化完成");
+                    int ret = cmd2.ExecuteNonQuery();
+                    if (ret >= 0)
+                    {
+                        MessageBox.Show("创建完成");
+                    }
+                    else
+                    {
+                        MessageBox.Show("创建失败");
+                    }
                 }
+                catch (Exception e)
+                {
+
+                    MessageBox.Show(e.Message);
+                }
+               
             }
             conn.Close();
 

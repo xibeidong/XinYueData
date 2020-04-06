@@ -33,6 +33,7 @@ namespace XinyueData
             label_backup.Text = "最近备份时间："+IniFiles.iniFile.IniReadValue("plan", "backuptime");
 
             setTaskAtFixedTime();
+            DataManager.Instance.init();
 
         }
 
@@ -67,7 +68,7 @@ namespace XinyueData
             DirectoryInfo root = new DirectoryInfo(rootPath);
             foreach (FileInfo info in root.GetFiles())
             {
-                if (info.Name.Contains(".txt"))
+                if (info.Name.Contains(".xls"))
                 {
                     pathList.Add(info.FullName);
                     temp_files_count++;
@@ -84,68 +85,26 @@ namespace XinyueData
         
         void DoSQL()
         {
+            Dictionary<string, string> dict = DataManager.Instance.FiledsDict;
+
+
             //DateTime t_begin = DateTime.Now;
             DateTime t1 = DateTime.Now;
             DateTime t2 = DateTime.Now;
             MySqlHelper.Instance.init();
-            qqNewCount = 0;
-            qqRepeatCount = 0;
+          
             int fileCount = 1;
             int allCount = pathList.Count;
             foreach (string fileFullName in pathList)
             {
                 richTextBox1.Invoke(AsyncUIDelegate,new object[] { string.Format("共{1}个文件，当前执行：{0}//{1}\r\n", fileCount, allCount) });
-               // richTextBox1.AppendText(string.Format("共{1}个文件，当前执行：{0}/{1}\r\n", fileCount, allCount));
-                FileStream fs = new FileStream(fileFullName,FileMode.Open);
-                StreamReader sr = new StreamReader(fs);
-                int level = 0;
-                string[] split = fileFullName.Split('\\');
 
-                string levelStr = System.Text.RegularExpressions.Regex.Replace(split[split.Length-1], @"[^0-9]+", "");
-                bool b = int.TryParse(levelStr, out level);
-                if (!b)
-                {
-                    Console.WriteLine("无法从文件名中提取到心悦等级：" + fileFullName);
-                    richTextBox1.AppendText("无法从文件名中提取到心悦等级：" + fileFullName+"\r\n");
-                    sr.Close();
-                    fs.Close();
-                    continue;
-                }
 
-                while (true)
-                {
-                    string str = sr.ReadLine();
-                    if (str==null)
-                    {
-                        sr.Close();
-                        fs.Close();
-                        break;
-                    }
-                    else
-                    {
-                        if (sp!="")
-                        {
-                            str = str.Replace(sp,"");
-                        }
-                        string commdStr = string.Format("insert into vipxy (in_time,qq,level) values (now(),{0},{1}) ON DUPLICATE KEY UPDATE update_time = now()", str, level);
-                        int ret =  MySqlHelper.Instance.Do(commdStr);
-                        if (ret == 1)
-                        {
-                            qqNewCount++;
-                        }
-                        else if (ret==2)
-                        {
-                            qqRepeatCount++;
-                        }
-                        else
-                        {
+                CountNum cn = DataManager.Instance.mParseExcelFile.ExcelToMysql(fileFullName);
 
-                        }
-                    }
-                    
-                }
+                
                 fileCount++;
-                richTextBox1.Invoke(AsyncUIDelegate, new object[] { string.Format("累计新增心悦用户:{0} ,累计重复心悦用户:{1}\r\n", qqNewCount, qqRepeatCount) });
+                richTextBox1.Invoke(AsyncUIDelegate, new object[] { string.Format("累计新增心悦用户:{0} ,累计重复心悦用户:{1}\r\n", cn.newAddCount, cn.repeatCount) });
                 //richTextBox1.AppendText(string.Format("累计新增心悦用户:{0} ,累计重复心悦用户:{1}\r\n", qqNewCount, qqRepeatCount));
                 t2 = DateTime.Now;
                 TimeSpan ts = t2 - t1;
@@ -185,10 +144,10 @@ namespace XinyueData
         {
             MySqlHelper.Instance.init();
             string level = textBox_level.Text.Trim();
-            string commdStr = "select count(*) from vipxy where out_time is null and level="+level;
+            string commdStr = "select count(*) from vipxy2 where out_time is null and f4="+ "'心悦会员"+level+"级'";
             int num1 = MySqlHelper.Instance.DoScalar(commdStr);
 
-            commdStr = "select count(*) from vipxy where level="+level;
+            commdStr = "select count(*) from vipxy2 where f4="  +  "'心悦会员" + level + "级'"; ;
             int numall = MySqlHelper.Instance.DoScalar(commdStr);
 
             richTextBox1.AppendText(string.Format("心悦{0}统计: 总数 {1}; 已导出 {2}; 未导出 {3};\r\n",level, numall, numall - num1, num1) );
@@ -236,8 +195,9 @@ namespace XinyueData
             string m_count = textBox_num.Text.Trim();
             FileStream fs = new FileStream(out_path, FileMode.OpenOrCreate);
             StreamWriter sw = new StreamWriter(fs);
-
-            string commdStr = string.Format("select * from vipxy where out_time is null and level={1} limit {0}", m_count, textBox_level.Text.Trim());
+            string level = "'心悦会员" + textBox_level.Text.Trim() + "级'";
+            string sp = textBox_sp.Text.ToString().Trim();
+            string commdStr = string.Format("select * from vipxy2 where out_time is null and f4={1} limit {0}", m_count, level);
             MySqlDataReader dr = MySqlHelper.Instance.DoGetReader(commdStr);
             List<string> tempList = new List<string>();
             if (dr != null)
@@ -245,7 +205,7 @@ namespace XinyueData
                
                 while (dr.Read())
                 {
-                    tempList.Add(dr["qq"].ToString());
+                    tempList.Add(dr["f0"].ToString());
                    
                 }
                 dr.Close();
@@ -258,11 +218,11 @@ namespace XinyueData
             int count_temp = 0;
             foreach (var item in tempList)
             {
-                commdStr = string.Format("update vipxy set out_time=now() where qq={0}", item);
+                commdStr = string.Format("update vipxy2 set out_time=now() where f0={0}", item);
                 int ret = MySqlHelper.Instance.Do(commdStr);
                 if (ret == 1)
                 {
-                    sw.WriteLine(item);
+                    sw.WriteLine(item+sp);
                 }
 
                 count_temp++;
@@ -290,7 +250,7 @@ namespace XinyueData
                 return;
             }
             MySqlHelper.Instance.init();
-            MySqlHelper.Instance.Do("update vipxy set out_time=null");
+            MySqlHelper.Instance.Do("update vipxy2 set out_time=null");
 
             richTextBox1.AppendText("已重置\r\n");
         }
@@ -363,7 +323,7 @@ namespace XinyueData
             DirectoryInfo root = new DirectoryInfo(path1);
             foreach (FileInfo info in root.GetFiles())
             {
-                if (info.Name.Contains(".txt"))
+                if (info.Name.Contains(".xlsx"))
                 {
                     string destFileName = path2 + "\\" + info.Name;
                     File.Copy(info.FullName, destFileName);
@@ -449,19 +409,11 @@ namespace XinyueData
             setTaskAtFixedTime();
         }
 
-        private void button7_Click(object sender, EventArgs e)
+       
+
+        private void Button_createTable2_Click(object sender, EventArgs e)
         {
-            ParseExcelFile pef = new ParseExcelFile("Zx.xlsx");
-            DataTable dt = pef.ExcelToDataTable(null, true);
-
-            foreach (DataRow dr in dt.Rows)
-            {
-                foreach (var item in dt.Columns)
-                {
-
-                }
-            }
-
+            MySqlHelper.Instance.CreateTable2();
         }
     }
 }

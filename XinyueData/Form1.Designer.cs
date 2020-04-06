@@ -55,7 +55,8 @@
             this.textBox_path1 = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.textBox_path2 = new System.Windows.Forms.TextBox();
-            this.button7 = new System.Windows.Forms.Button();
+            this.Button_createTable2 = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -73,7 +74,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(20, 123);
+            this.button2.Location = new System.Drawing.Point(20, 92);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 0;
@@ -92,15 +93,15 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(20, 86);
+            this.label1.Location = new System.Drawing.Point(20, 123);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(113, 12);
+            this.label1.Size = new System.Drawing.Size(47, 12);
             this.label1.TabIndex = 3;
-            this.label1.Text = "分割符（可为空）：";
+            this.label1.Text = "分割符:";
             // 
             // textBox_sp
             // 
-            this.textBox_sp.Location = new System.Drawing.Point(139, 83);
+            this.textBox_sp.Location = new System.Drawing.Point(88, 114);
             this.textBox_sp.Name = "textBox_sp";
             this.textBox_sp.Size = new System.Drawing.Size(103, 21);
             this.textBox_sp.TabIndex = 4;
@@ -119,12 +120,10 @@
             // 
             this.groupBox1.Controls.Add(this.button1);
             this.groupBox1.Controls.Add(this.textBox_inpath);
-            this.groupBox1.Controls.Add(this.textBox_sp);
             this.groupBox1.Controls.Add(this.button2);
-            this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(24, 82);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(362, 171);
+            this.groupBox1.Size = new System.Drawing.Size(362, 142);
             this.groupBox1.TabIndex = 6;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "导入到数据库";
@@ -140,15 +139,18 @@
             // 
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Controls.Add(this.button6);
+            this.groupBox2.Controls.Add(this.textBox_sp);
             this.groupBox2.Controls.Add(this.label3);
+            this.groupBox2.Controls.Add(this.label5);
+            this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.label2);
             this.groupBox2.Controls.Add(this.textBox_num);
             this.groupBox2.Controls.Add(this.textBox_level);
             this.groupBox2.Controls.Add(this.button5);
             this.groupBox2.Controls.Add(this.button4);
-            this.groupBox2.Location = new System.Drawing.Point(24, 277);
+            this.groupBox2.Location = new System.Drawing.Point(24, 243);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(362, 151);
+            this.groupBox2.Size = new System.Drawing.Size(362, 185);
             this.groupBox2.TabIndex = 7;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "从数据库导出";
@@ -156,7 +158,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(45, 127);
+            this.label4.Location = new System.Drawing.Point(21, 152);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(161, 12);
             this.label4.TabIndex = 6;
@@ -164,7 +166,7 @@
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(212, 122);
+            this.button6.Location = new System.Drawing.Point(188, 147);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(75, 23);
             this.button6.TabIndex = 5;
@@ -330,22 +332,31 @@
             this.textBox_path2.Size = new System.Drawing.Size(265, 21);
             this.textBox_path2.TabIndex = 4;
             // 
-            // button7
+            // Button_createTable2
             // 
-            this.button7.Location = new System.Drawing.Point(281, 29);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(75, 23);
-            this.button7.TabIndex = 9;
-            this.button7.Text = "测试Excel";
-            this.button7.UseVisualStyleBackColor = true;
-            this.button7.Click += new System.EventHandler(this.button7_Click);
+            this.Button_createTable2.Location = new System.Drawing.Point(163, 29);
+            this.Button_createTable2.Name = "Button_createTable2";
+            this.Button_createTable2.Size = new System.Drawing.Size(75, 23);
+            this.Button_createTable2.TabIndex = 10;
+            this.Button_createTable2.Text = "创建表2";
+            this.Button_createTable2.UseVisualStyleBackColor = true;
+            this.Button_createTable2.Click += new System.EventHandler(this.Button_createTable2_Click);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(210, 123);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(53, 12);
+            this.label5.TabIndex = 3;
+            this.label5.Text = "(可为空)";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 639);
-            this.Controls.Add(this.button7);
+            this.Controls.Add(this.Button_createTable2);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.button3);
@@ -392,7 +403,8 @@
         private System.Windows.Forms.Button button_path1;
         private System.Windows.Forms.Label label_plan_state;
         private System.Windows.Forms.Label label_backup;
-        private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.Button Button_createTable2;
+        private System.Windows.Forms.Label label5;
     }
 }
 
