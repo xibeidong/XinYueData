@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2042
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XinYueData2020", "XinYueData2020\XinYueData2020.csproj", "{B5FF472B-E518-4422-9EF5-CC012FB8665B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B5FF472B-E518-4422-9EF5-CC012FB8665B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5FF472B-E518-4422-9EF5-CC012FB8665B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5FF472B-E518-4422-9EF5-CC012FB8665B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5FF472B-E518-4422-9EF5-CC012FB8665B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {296BD150-7725-4936-A99E-27953AD08561}
+	EndGlobalSection
+EndGlobal
